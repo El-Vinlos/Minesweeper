@@ -3,6 +3,7 @@ package com.elvinlos.minesweeper.views.grid;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -13,9 +14,9 @@ import com.elvinlos.minesweeper.R;
 
 public class Cell extends BaseCell implements View.OnClickListener, View.OnLongClickListener{
 
-    public Cell (Context context, int position){
+    public Cell (Context context, int x, int y){
         super(context);
-        setPosition(position);
+        setPosition(x,y);
         setOnClickListener(this);
         setOnLongClickListener(this);
     }
@@ -33,21 +34,21 @@ public class Cell extends BaseCell implements View.OnClickListener, View.OnLongC
     @Override
     public boolean onLongClick(View v) {
         GameEngine.getInstance().flag( getXPos(), getYPos());
-
         return true;
     }
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
+        Log.d("Minesweeper","Cell:onDraw");
 
         if (isFlagged()) {
             drawFlag(canvas);
             return;
         }
 
-        if (isRevealed() && isBomb() && isClicked()) {
-            drawBombRed(canvas);
+        if (isRevealed() && isBomb() && !isClicked()) {
+            drawBomb(canvas);
             return;
         }
 

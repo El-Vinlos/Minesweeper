@@ -17,11 +17,18 @@ public class Grid extends GridView {
         setAdapter(new GridAdapter());
     }
 
-    private class GridAdapter extends BaseAdapter{
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    private static class GridAdapter extends BaseAdapter{
 
         @Override
         public int getCount() {
-            return GameEngine.getInstance().WIDTH * GameEngine.getInstance().HEIGHT;
+            GameEngine.getInstance();
+            GameEngine.getInstance();
+            return GameEngine.WIDTH * GameEngine.HEIGHT;
         }
 
         @Override

@@ -9,10 +9,10 @@ public abstract class BaseCell extends View {
 
     private int value;
 
-    private boolean IsBomb;
-    private boolean IsRevealed;
-    private boolean IsClicked;
-    private boolean IsFlagged;
+    private boolean isBomb;
+    private boolean isRevealed;
+    private boolean isClicked;
+    private boolean isFlagged;
 
     private int x, y;
     private int position;
@@ -22,51 +22,52 @@ public abstract class BaseCell extends View {
     }
 
     public void setValue(int value) {
-        IsBomb = false;
-        IsRevealed = false;
-        IsClicked = false;
-        IsFlagged = false;
+        isBomb = false;
+        isRevealed = false;
+        isClicked = false;
+        isFlagged = false;
 
         if(value == -1){
-            IsBomb = true;
+            isBomb = true;
         }
 
         this.value = value;
     }
 
     public boolean isBomb() {
-        return IsBomb;
+        return isBomb;
     }
 
     public void setBomb(boolean bomb) {
-        IsBomb = bomb;
+        isBomb = bomb;
     }
 
     public boolean isRevealed() {
-        return IsRevealed;
+        return isRevealed;
     }
 
-    public void setRevealed(boolean revealed) {
-        IsRevealed = revealed;
+    public void setRevealed() {
+        isRevealed = true;
+        invalidate();
     }
 
     public boolean isClicked() {
-        return IsClicked;
+        return isClicked;
     }
 
     public void setClicked() {
-        this.IsClicked = true;
-        this.IsRevealed = true;
+        this.isClicked = true;
+        this.isRevealed = true;
 
         invalidate();
     }
 
     public boolean isFlagged() {
-        return IsFlagged;
+        return isFlagged;
     }
 
     public void setFlagged(boolean flagged) {
-        IsFlagged = flagged;
+        isFlagged = flagged;
     }
 
     public int getXPos() {
@@ -81,11 +82,20 @@ public abstract class BaseCell extends View {
         return position;
     }
 
+    public void setPosition(int x, int y){
+        this.x = x;
+        this.y = y;
+
+        this.position = y * GameEngine.WIDTH + x;
+
+        invalidate();
+    }
+
     public void setPosition(int position) {
         this.position = position;
 
         x = position % GameEngine.WIDTH;
-        y = position / GameEngine.HEIGHT;
+        y = position / GameEngine.WIDTH;
 
         invalidate();
     }
