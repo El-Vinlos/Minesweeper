@@ -10,9 +10,9 @@ import com.elvinlos.minesweeper.views.grid.Cell;
 public class GameEngine {
     @SuppressLint("StaticFieldLeak")
     private static GameEngine instance;
-    public static final int BOMB_NUMBER = 1;
-    public static final int WIDTH = 4;
-    public static final int HEIGHT = 4;
+    public static final int BOMB_NUMBER = 33;
+    public static final int WIDTH = 10;
+    public static final int HEIGHT = 10;
     public static boolean gameWon = false;
     private Context context;
 
@@ -64,6 +64,40 @@ public class GameEngine {
         if (!isValidPosition(x, y)) return;
 
         Cell cell = getCellAt(x, y);
+
+        // --- New: Chording behavior ---
+        if (cell.isRevealed() && cell.getValue() > 0) {
+            // If clicking on a revealed numbered cell, try chording
+            int flaggedCount = 0;
+            for (int xt = -1; xt <= 1; xt++) {
+                for (int yt = -1; yt <= 1; yt++) {
+                    int newX = x + xt;
+                    int newY = y + yt;
+                    if (isValidPosition(newX, newY) && getCellAt(newX, newY).isFlagged()) {
+                        flaggedCount++;
+                    }
+                }
+            }
+
+            if (flaggedCount == cell.getValue()) {
+                // Reveal all unflagged adjacent cells
+                for (int xt = -1; xt <= 1; xt++) {
+                    for (int yt = -1; yt <= 1; yt++) {
+                        int newX = x + xt;
+                        int newY = y + yt;
+                        if (isValidPosition(newX, newY)) {
+                            Cell neighbor = getCellAt(newX, newY);
+                            if (!neighbor.isFlagged() && !neighbor.isRevealed()) {
+                                click(newX, newY);  // Recursive call
+                            }
+                        }
+                    }
+                }
+            }
+            return; // After chording, stop further processing
+        }
+
+        // --- Existing normal click behavior ---
         if (cell.isClicked()) return;
 
         cell.setClicked();
@@ -74,7 +108,6 @@ public class GameEngine {
         }
 
         if (cell.getValue() != 0) {
-            // Check for win after revealing a numbered cell
             checkForWin();
             return;
         }
@@ -88,10 +121,8 @@ public class GameEngine {
             }
         }
 
-        // Check for win after revealing cells
         checkForWin();
     }
-
     private boolean isValidPosition(int x, int y) {
         return x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT;
     }
