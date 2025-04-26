@@ -23,4 +23,10 @@ public class MainActivity extends AppCompatActivity {
 
         GameEngine.getInstance().createGrid(this);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        GameEngine.getInstance().onDestroy();
+    }
 }

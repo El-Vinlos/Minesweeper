@@ -104,4 +104,5 @@ public abstract class BaseCell extends View {
     public BaseCell (Context context){
         super(context);
     }
+
 }
