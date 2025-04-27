@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomResetButtonThemeLight">
+        <item name="cornerRadius">5dp</item>
+        <item name="android:scaleType"></item>
+    </style>
+</resources>

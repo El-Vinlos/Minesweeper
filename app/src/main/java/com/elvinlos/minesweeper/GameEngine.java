@@ -4,21 +4,37 @@ import android.content.Context;
 import android.app.AlertDialog;
 import android.app.Activity;
 import android.content.ContextWrapper;
+import android.os.Handler;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 
 import com.elvinlos.minesweeper.util.Generator;
 import com.elvinlos.minesweeper.views.grid.Cell;
 
+import org.w3c.dom.Text;
+
 public class GameEngine {
+    public Activity activity;
+    public ImageButton ResetButton;
     private static GameEngine instance;
     public int BOMB_NUMBER = (int) ((WIDTH * HEIGHT) * 0.25);
-    public static final int WIDTH = 16;
-    public static final int HEIGHT = 25;
+    public static int WIDTH = 16;
+    public static int HEIGHT = 25;
     public static boolean gameWon = false;
+    private int seconds = 0;
+    private boolean timerRunning = false;
+    private Handler handler = new Handler();
+    public TextView TimerText;
+    public TextView FlagText;
+    public int flagsLeft;
 
     // Use ApplicationContext instead of Activity context
     private Context applicationContext;
 
-    private final Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
+    private Cell[][] MinesweeperGrid;
 
     public static GameEngine getInstance() {
         if (instance == null) {
@@ -32,9 +48,21 @@ public class GameEngine {
     public void createGrid(Context context) {
         // Store only the application context, not the activity context
         this.applicationContext = context.getApplicationContext();
-
+        MinesweeperGrid = new Cell[WIDTH][HEIGHT];
         int[][] GenerateGrid = Generator.generate(BOMB_NUMBER, WIDTH, HEIGHT);
         setGrid(context, GenerateGrid);
+        initHeader();
+    }
+    public void initHeader() {
+        activity = getActivity(MinesweeperGrid[0][0].getContext());
+        FlagText = (TextView) activity.findViewById(R.id.FlagText);
+        flagsLeft = BOMB_NUMBER;
+        displayFlagNumber();
+        ResetButton = (ImageButton) activity.findViewById(R.id.resetButton);
+        ResetButton.setOnClickListener(v -> {
+            restartGame(); // <-- Restart game logic
+        });
+        TimerText = (TextView) activity.findViewById(R.id.timerText);
     }
 
     private void setGrid(final Context context, final int[][] grid) {
@@ -62,6 +90,11 @@ public class GameEngine {
     }
 
     public void click(int x, int y) {
+        if(!timerRunning)
+        {
+            startTimer();
+        }
+
         if (!isValidPosition(x, y)) return;
 
         Cell cell = getCellAt(x, y);
@@ -138,6 +171,7 @@ public class GameEngine {
         }
 
         askForNewGame("Bạn đã thua!");
+        stopTimer();
     }
 
     private void onGameWon() {
@@ -149,6 +183,7 @@ public class GameEngine {
         }
 
         askForNewGame("Bạn đã thắng!");
+        stopTimer();
     }
 
     private void askForNewGame(String title) {
@@ -184,8 +219,7 @@ public class GameEngine {
 
     private void restartGame() {
         gameWon = false;
-
-        // Get the current Activity context from a Cell
+        resetTimer();
         Context currentContext = MinesweeperGrid[0][0].getContext();
         createGrid(currentContext);
     }
@@ -195,9 +229,24 @@ public class GameEngine {
             return;
         }
         boolean isFlagged = getCellAt(x, y).isFlagged();
+
+        if (!isFlagged && flagsLeft == 0) {
+            // No more flags available, don't allow placing new flag
+            Toast.makeText(activity, "Hết số cờ để đặt mìn!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         getCellAt(x, y).setFlagged(!isFlagged);
         getCellAt(x, y).invalidate();
 
+        // Update flagsLeft
+        if (isFlagged) {
+            flagsLeft++;// Removed a flag
+        } else {
+            flagsLeft--;// Placed a flag
+        }
+
+        displayFlagNumber();
         // Check for win after placing/removing a flag
         checkForWin();
     }
@@ -253,5 +302,40 @@ public class GameEngine {
     public void onDestroy() {
         // Release context reference when not needed
         this.applicationContext = null;
+    }
+
+    private Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (seconds < 999) {
+                seconds++;
+                String timeFormatted = String.format("%03d", seconds);
+                TimerText.setText(timeFormatted);
+                handler.postDelayed(this, 1000);
+            } else {
+                stopTimer(); // Stop when reaching 999
+            }
+        }
+    };
+    public void startTimer() {
+        // Start the timer by posting the Runnable for the first time
+        timerRunning = true;
+        handler.post(timerRunnable);  // Start the timer
+    }
+
+    public void resetTimer() {
+        timerRunning = false;
+        handler.removeCallbacks(timerRunnable);
+        seconds = 0;
+        TimerText.setText("000");
+    }
+    public void stopTimer() {
+        // Stop the timer by removing the Runnable from the Handler
+        timerRunning = false;
+        handler.removeCallbacks(timerRunnable);  // Stop updating the time
+    }
+    public void displayFlagNumber() {
+        String flagTextFormatted = String.format("%03d", flagsLeft);
+        FlagText.setText(flagTextFormatted);
     }
 }

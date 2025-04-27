@@ -9,28 +9,125 @@
     tools:context=".MainActivity">
 
     <LinearLayout
+        android:id="@+id/MainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/background_dark"
         android:orientation="vertical">
         <LinearLayout
+            android:id="@+id/HeaderLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/header_dark"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="12dp"
-            android:orientation="horizontal" >
+            android:gravity="center"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:id="@+id/TotalFlags"
+                android:paddingTop="4dp"
+                android:paddingStart="2dp"
+                android:paddingBottom="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/backgroundFlagText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/black"
+                    android:fontFamily="@font/digital_7_mono"
+                    android:text="888"
+                    android:textColor="#2c1819"
+                    android:textSize="60dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.028" />
 
+                <TextView
+                    android:id="@+id/FlagText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/digital_7_mono"
+                    android:text="000"
+                    android:textColor="#f20000"
+                    android:textSize="60dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.028" />
+            </FrameLayout>
+            <Space
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent" />
+            <ImageButton
+                android:id="@+id/resetButton"
+                style="@style/CustomResetButtonThemeLight"
+                android:src="@drawable/reset_button_click"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:background="@null"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.027" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent" />
+            <FrameLayout
+                android:id="@+id/Timer"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/backgroundTimerText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/black"
+                    android:fontFamily="@font/digital_7_mono"
+                    android:text="888"
+                    android:textColor="#2c1819"
+                    android:textSize="60dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.028" />
+
+                <TextView
+                    android:id="@+id/timerText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/digital_7_mono"
+                    android:text="000"
+                    android:textColor="#f20000"
+                    android:textSize="60dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.028" />
+            </FrameLayout>
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/BodyLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/main_dark"
             android:layout_marginVertical="12dp"
             android:layout_marginHorizontal="10dp"
-            android:gravity="center"
-            >
+            android:gravity="center">
 
             <com.elvinlos.minesweeper.views.grid.Grid
                 android:id="@+id/minesweeper_gridview"
