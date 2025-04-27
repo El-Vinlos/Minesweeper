@@ -3,19 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:background="#ffffff"
+    android:background="#444c54"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-    <com.elvinlos.minesweeper.views.grid.Grid
-        android:id="@+id/minesweeper_gridview"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:layout_height="match_parent"
+        android:background="@drawable/background_dark"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/header_dark"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal" >
 
+        </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/main_dark"
+            android:layout_marginVertical="12dp"
+            android:layout_marginHorizontal="10dp"
+            android:gravity="center"
+            >
+
+            <com.elvinlos.minesweeper.views.grid.Grid
+                android:id="@+id/minesweeper_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginVertical="8dp" />
+        </LinearLayout>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

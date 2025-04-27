@@ -4,16 +4,15 @@ import android.content.Context;
 import android.app.AlertDialog;
 import android.app.Activity;
 import android.content.ContextWrapper;
-import android.widget.Button;
 
 import com.elvinlos.minesweeper.util.Generator;
 import com.elvinlos.minesweeper.views.grid.Cell;
 
 public class GameEngine {
     private static GameEngine instance;
-    public int BOMB_NUMBER = (int) ((WIDTH * HEIGHT) * 0.30);
+    public int BOMB_NUMBER = (int) ((WIDTH * HEIGHT) * 0.25);
     public static final int WIDTH = 16;
-    public static final int HEIGHT = 32;
+    public static final int HEIGHT = 25;
     public static boolean gameWon = false;
 
     // Use ApplicationContext instead of Activity context
@@ -67,7 +66,7 @@ public class GameEngine {
 
         Cell cell = getCellAt(x, y);
 
-        // --- New: Chording behavior ---
+        //Chording
         if (cell.isRevealed() && cell.getValue() > 0) {
             // If clicking on a revealed numbered cell, try chording
             int flaggedCount = 0;
@@ -90,16 +89,16 @@ public class GameEngine {
                         if (isValidPosition(newX, newY)) {
                             Cell neighbor = getCellAt(newX, newY);
                             if (!neighbor.isFlagged() && !neighbor.isRevealed()) {
-                                click(newX, newY);  // Recursive call
+                                click(newX, newY);
                             }
                         }
                     }
                 }
             }
-            return; // After chording, stop further processing
+            return;
         }
 
-        // --- Existing normal click behavior ---
+        // normal
         if (cell.isClicked()) return;
 
         cell.setClicked();
@@ -134,6 +133,7 @@ public class GameEngine {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 getCellAt(x, y).setRevealed();
+                getCellAt(x, y).setFlagged(false);
             }
         }
 

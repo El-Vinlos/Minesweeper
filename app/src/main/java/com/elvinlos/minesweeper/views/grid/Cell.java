@@ -64,6 +64,9 @@ public class Cell extends BaseCell implements View.OnClickListener, View.OnLongC
         drawButton(canvas);
     }
 
+    private void drawPressed(Canvas canvas){
+        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.pressed);
+    }
     private void drawBombRed(Canvas canvas) {
         Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.mine_red);
         drawable.setBounds(0,0,getWidth(),getHeight());
