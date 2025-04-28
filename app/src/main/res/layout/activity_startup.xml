@@ -71,4 +71,7 @@
             android:layout_marginTop="32dp"
             android:text="Xếp hạng" />
     </LinearLayout>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
