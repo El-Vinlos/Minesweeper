@@ -13,6 +13,14 @@ import com.elvinlos.minesweeper.util.Generator;
 import com.elvinlos.minesweeper.views.grid.Cell;
 import com.elvinlos.minesweeper.views.grid.Grid;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 
 public class GameEngine {
     public Activity activity;
@@ -20,12 +28,13 @@ public class GameEngine {
     public static int BOMB_NUMBER = 16 ;
     public static int WIDTH = 100 ;
     public static int HEIGHT = 100;
+    public static String Diff;
     public TextView TimerText;
     public TextView FlagText;
     public int flagsLeft;
     private static boolean gameWon = false;
-    private static boolean gameLost = false;
-    private Handler handler = new Handler();
+    private static boolean allowTouch = true;
+    private final Handler handler = new Handler();
     private static GameEngine instance;
     private int seconds = 0;
     private boolean timerRunning = false;
@@ -35,7 +44,7 @@ public class GameEngine {
     }
 
 
-    private Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
+    private final Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
 
     public static GameEngine getInstance() {
         if (instance == null) {
@@ -51,7 +60,7 @@ public class GameEngine {
         if (gridview != null)
             gridview.updateView();
         int[][] GenerateGrid = Generator.generate(BOMB_NUMBER, WIDTH, HEIGHT);
-        gameLost = false;
+        allowTouch = true;
         setGrid(context, GenerateGrid);
 
         initHeader();
@@ -62,9 +71,7 @@ public class GameEngine {
         flagsLeft = BOMB_NUMBER;
         displayFlagNumber();
         ResetButton =  activity.findViewById(R.id.resetButton);
-        ResetButton.setOnClickListener(v -> {
-            restartGame();
-        });
+        ResetButton.setOnClickListener(v -> restartGame());
         TimerText = activity.findViewById(R.id.timerText);
     }
 
@@ -93,7 +100,7 @@ public class GameEngine {
     }
 
     public void click(int x, int y) {
-        if (gameLost) return;
+        if (!allowTouch) return;
 
         if(!timerRunning) startTimer();
 
@@ -173,7 +180,7 @@ public class GameEngine {
             }
         }
         ResetButton.setBackground(activity.getDrawable(R.drawable.face_lose));
-        gameLost = true;
+        allowTouch = false;
         stopTimer();
     }
 
@@ -184,8 +191,60 @@ public class GameEngine {
                 getCellAt(x, y).setRevealed();
             }
         }
-
+        allowTouch = false;
+        saveHighscore();
+        ResetButton.setBackground(activity.getDrawable(R.drawable.face_win));
         stopTimer();
+    }
+
+    public List<Integer> loadHighscores() {
+        List<Integer> highscores = new ArrayList<>();
+        if (activity == null) return highscores;
+
+        String key = Diff;
+
+        String json = activity.getSharedPreferences("Highscore_saves", Context.MODE_PRIVATE)
+                .getString(key, null);
+
+        if (json != null) {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    highscores.add(jsonArray.getInt(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return highscores;
+    }
+
+
+    private void saveHighscore() {
+        if (activity == null) return;
+
+        List<Integer> highscores = loadHighscores();
+        highscores.add(seconds);
+        Collections.sort(highscores); // Fastest times first
+
+        // Only keep top 10 scores
+        if (highscores.size() > 10) {
+            highscores = highscores.subList(0, 10);
+        }
+
+        // Save as JSON
+        JSONArray jsonArray = new JSONArray();
+        for (int score : highscores) {
+            jsonArray.put(score);
+        }
+
+        String key = Diff;
+
+        activity.getSharedPreferences("Highscore_saves", Context.MODE_PRIVATE)
+                .edit()
+                .putString(key, jsonArray.toString())
+                .apply();
     }
 
     // Helper method to safely get the current Activity
@@ -235,12 +294,9 @@ public class GameEngine {
     }
 
     private void checkForWin() {
-        // First win condition: All non-bomb cells are revealed
         boolean allNonBombCellsRevealed = true;
 
-        // Second win condition: All bombs are correctly flagged and exactly BOMB_NUMBER flags are used
         boolean allBombsFlagged = true;
-        int flaggedBombs = 0;
         int totalFlags = 0;
 
         if (gameWon) {
@@ -251,14 +307,8 @@ public class GameEngine {
             for (int y = 0; y < HEIGHT; y++) {
                 Cell cell = getCellAt(x, y);
 
-                // Count flags
                 if (cell.isFlagged()) {
                     totalFlags++;
-
-                    // Count correctly flagged bombs
-                    if (cell.isBomb()) {
-                        flaggedBombs++;
-                    }
                 }
 
                 // Check if all non-bomb cells are revealed
@@ -273,26 +323,22 @@ public class GameEngine {
             }
         }
 
-        // Win if all non-bomb cells are revealed or all bombs are correctly flagged
-        // and the number of flags equals the number of bombs
         if (allNonBombCellsRevealed && (allBombsFlagged && totalFlags == BOMB_NUMBER)) {
             gameWon = true;
             onGameWon();
         }
     }
 
-    // Method to clean up resources when activity is destroyed
     public void onDestroy() {
-        // Release context reference when not needed
         this.activity = null;
     }
 
-    private Runnable timerRunnable = new Runnable() {
+    private final Runnable timerRunnable = new Runnable() {
         @Override
         public void run() {
             if (seconds < 999) {
                 seconds++;
-                String timeFormatted = String.format("%03d", seconds);
+                String timeFormatted = String.format(Locale.getDefault(),"%03d", seconds);
                 TimerText.setText(timeFormatted);
                 handler.postDelayed(this, 1000);
             } else {
