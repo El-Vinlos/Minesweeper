@@ -132,6 +132,7 @@ public class GameEngine {
             }
             return;
         }
+        if (cell.isFlagged()) return;
 
         // normal
         if (cell.isClicked()) return;
