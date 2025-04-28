@@ -27,7 +27,6 @@ public class Grid extends GridView {
         @Override
         public int getCount() {
             GameEngine.getInstance();
-            GameEngine.getInstance();
             return GameEngine.WIDTH * GameEngine.HEIGHT;
         }
 
@@ -45,5 +44,10 @@ public class Grid extends GridView {
         public View getView(int position, View convertView, ViewGroup parent) {
             return GameEngine.getInstance().getCellAt(position);
         }
+    }
+
+    public void updateView(){
+        setNumColumns(GameEngine.WIDTH);
+        setAdapter(new GridAdapter());
     }
 }

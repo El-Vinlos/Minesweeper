@@ -1,7 +1,6 @@
 package com.elvinlos.minesweeper;
 
 import android.content.Context;
-import android.app.AlertDialog;
 import android.app.Activity;
 import android.content.ContextWrapper;
 import android.os.Handler;
@@ -9,32 +8,34 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.fragment.app.strictmode.FragmentStrictMode;
 
 import com.elvinlos.minesweeper.util.Generator;
 import com.elvinlos.minesweeper.views.grid.Cell;
+import com.elvinlos.minesweeper.views.grid.Grid;
 
-import org.w3c.dom.Text;
 
 public class GameEngine {
     public Activity activity;
     public ImageButton ResetButton;
-    private static GameEngine instance;
-    public int BOMB_NUMBER = (int) ((WIDTH * HEIGHT) * 0.25);
-    public static int WIDTH = 16;
-    public static int HEIGHT = 25;
-    public static boolean gameWon = false;
-    private int seconds = 0;
-    private boolean timerRunning = false;
-    private Handler handler = new Handler();
+    public static int BOMB_NUMBER = 16 ;
+    public static int WIDTH = 100 ;
+    public static int HEIGHT = 100;
     public TextView TimerText;
     public TextView FlagText;
     public int flagsLeft;
+    private static boolean gameWon = false;
+    private static boolean gameLost = false;
+    private Handler handler = new Handler();
+    private static GameEngine instance;
+    private int seconds = 0;
+    private boolean timerRunning = false;
+    private Grid gridview;
+    public void setGridview(Grid gridview){
+        this.gridview = gridview;
+    }
 
-    // Use ApplicationContext instead of Activity context
-    private Context applicationContext;
 
-    private Cell[][] MinesweeperGrid;
+    private Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
 
     public static GameEngine getInstance() {
         if (instance == null) {
@@ -43,26 +44,28 @@ public class GameEngine {
         return instance;
     }
 
-    private GameEngine() { }
+    private GameEngine() {
+    }
 
     public void createGrid(Context context) {
-        // Store only the application context, not the activity context
-        this.applicationContext = context.getApplicationContext();
-        MinesweeperGrid = new Cell[WIDTH][HEIGHT];
+        if (gridview != null)
+            gridview.updateView();
         int[][] GenerateGrid = Generator.generate(BOMB_NUMBER, WIDTH, HEIGHT);
+        gameLost = false;
         setGrid(context, GenerateGrid);
+
         initHeader();
     }
     public void initHeader() {
         activity = getActivity(MinesweeperGrid[0][0].getContext());
-        FlagText = (TextView) activity.findViewById(R.id.FlagText);
+        FlagText = activity.findViewById(R.id.FlagText);
         flagsLeft = BOMB_NUMBER;
         displayFlagNumber();
-        ResetButton = (ImageButton) activity.findViewById(R.id.resetButton);
+        ResetButton =  activity.findViewById(R.id.resetButton);
         ResetButton.setOnClickListener(v -> {
-            restartGame(); // <-- Restart game logic
+            restartGame();
         });
-        TimerText = (TextView) activity.findViewById(R.id.timerText);
+        TimerText = activity.findViewById(R.id.timerText);
     }
 
     private void setGrid(final Context context, final int[][] grid) {
@@ -90,10 +93,9 @@ public class GameEngine {
     }
 
     public void click(int x, int y) {
-        if(!timerRunning)
-        {
-            startTimer();
-        }
+        if (gameLost) return;
+
+        if(!timerRunning) startTimer();
 
         if (!isValidPosition(x, y)) return;
 
@@ -137,7 +139,7 @@ public class GameEngine {
         cell.setClicked();
 
         if (cell.isBomb()) {
-            onGamelost();
+            onGameLost();
             return;
         }
 
@@ -162,15 +164,15 @@ public class GameEngine {
         return x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT;
     }
 
-    private void onGamelost() {
+    private void onGameLost() {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 getCellAt(x, y).setRevealed();
                 getCellAt(x, y).setFlagged(false);
             }
         }
-
-        askForNewGame("Bạn đã thua!");
+        ResetButton.setBackground(activity.getDrawable(R.drawable.face_lose));
+        gameLost = true;
         stopTimer();
     }
 
@@ -182,28 +184,7 @@ public class GameEngine {
             }
         }
 
-        askForNewGame("Bạn đã thắng!");
         stopTimer();
-    }
-
-    private void askForNewGame(String title) {
-        // Get the current Activity context safely
-        Activity activity = getActivity(MinesweeperGrid[0][0].getContext());
-        if (activity == null || activity.isFinishing()) {
-            return; // Don't show dialog if activity is finishing or null
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(title)
-                .setMessage("Bạn có muốn chơi lại không?")
-                .setCancelable(false)
-                .setPositiveButton("Game mới", (dialog, which) -> restartGame())
-                .setNegativeButton("Thoát", (dialog, which) -> {
-                    // This will close the activity
-                    activity.finish();
-                });
-
-        builder.create().show();
     }
 
     // Helper method to safely get the current Activity
@@ -221,6 +202,7 @@ public class GameEngine {
         gameWon = false;
         resetTimer();
         Context currentContext = MinesweeperGrid[0][0].getContext();
+        ResetButton.setBackground(activity.getDrawable(R.drawable.reset_button_click));
         createGrid(currentContext);
     }
 
@@ -301,7 +283,7 @@ public class GameEngine {
     // Method to clean up resources when activity is destroyed
     public void onDestroy() {
         // Release context reference when not needed
-        this.applicationContext = null;
+        this.activity = null;
     }
 
     private Runnable timerRunnable = new Runnable() {
