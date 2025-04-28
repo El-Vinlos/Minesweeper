@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     public static int WIDTH = 9;
     public static int HEIGHT = 9;
     public static int BOMB_NUMBER = 10;
+    public static String Diff;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,27 +34,33 @@ public class MainActivity extends AppCompatActivity {
                 WIDTH = 9;
                 HEIGHT = 9;
                 BOMB_NUMBER = 12;
+                Diff = "easy";
+
                 break;
             case "trung bình":
                 WIDTH = 11;
                 HEIGHT = 18;
                 BOMB_NUMBER = 40;
+                Diff = "normal";
                 break;
             case "khó":
                 WIDTH = 16;
                 HEIGHT = 26;
                 BOMB_NUMBER = 80;
+                Diff = "hard";
                 break;
             case "cực khó":
                 WIDTH = 19;
                 HEIGHT = 31;
                 BOMB_NUMBER = 176;
+                Diff = "evil";
                 break;
         }
 
         GameEngine.WIDTH = WIDTH;
         GameEngine.HEIGHT = HEIGHT;
         GameEngine.BOMB_NUMBER = BOMB_NUMBER;
+        GameEngine.Diff = Diff;
         Grid grid = findViewById(R.id.minesweeper_gridview);
         GameEngine.getInstance().setGridview(grid);
         GameEngine.getInstance().createGrid(this);

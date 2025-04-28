@@ -6,7 +6,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 public class ChooseDifficulty extends AppCompatActivity {
-    private Button buttonEasy, buttonNormal, buttonHard, buttonEvil;
+    private Button buttonEasy, buttonNormal, buttonHard, buttonEvil, buttonHighscore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,17 +17,24 @@ public class ChooseDifficulty extends AppCompatActivity {
         buttonNormal = findViewById(R.id.buttonNormal);
         buttonHard = findViewById(R.id.buttonHard);
         buttonEvil = findViewById(R.id.buttonEvil);
+        buttonHighscore = findViewById(R.id.buttonHighscore); // new!
 
         buttonEasy.setOnClickListener(v -> startMainActivity("dễ"));
         buttonNormal.setOnClickListener(v -> startMainActivity("trung bình"));
         buttonHard.setOnClickListener(v -> startMainActivity("khó"));
         buttonEvil.setOnClickListener(v -> startMainActivity("cực khó"));
+
+        buttonHighscore.setOnClickListener(v -> openHighscoreScreen());
     }
 
     private void startMainActivity(String difficulty) {
-        Intent intent = new Intent(ChooseDifficulty.this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("difficulty", difficulty);
         startActivity(intent);
-        finish(); // Optional
+    }
+
+    private void openHighscoreScreen() {
+        Intent intent = new Intent(this, HighscoreActivity.class);
+        startActivity(intent);
     }
 }
